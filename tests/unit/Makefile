@@ -25,7 +25,7 @@ NETMAN_DIR = ../../../space-netman
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS += -isystem $(GTEST_DIR)/include -I$(NETMAN_DIR)/lib/include
+CPPFLAGS += -isystem $(GTEST_DIR)/include -I$(NETMAN_DIR)/lib/include -I$(USER_DIR)/include
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -Wall -Wextra -pthread
@@ -77,9 +77,12 @@ netman.o : $(NETMAN_DIR)/src/netman.c $(NETMAN_DIR)/include/netman.h of2g.o
 of2g.o : $(NETMAN_DIR)/src/of2g.c $(NETMAN_DIR)/include/of2g.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(NETMAN_DIR)/src/of2g.c
 
-ground-cmd-test.o : $(USER_DIR)/tests/unit/ground-cmd-test.cpp $(USER_DIR)/include/gnd_commands.h  $(GTEST_HEADERS)
+gnd_commands.o : $(USER_DIR)/src/gnd_commands.c $(USER_DIR)/include/gnd_commands.h $(USER_DIR)/include/gnd_cdh.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/src/gnd_commands.c
+
+ground-cmd-test.o : $(USER_DIR)/tests/unit/ground-cmd-test.cpp $(USER_DIR)/include/gnd_commands.h $(USER_DIR)/include/gnd_cdh.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/tests/unit/ground-cmd-test.cpp
 
-ground-cmd-test : of2g.o ground-cmd-test.o gtest_main.a $(NETMAN_DIR)/lib/libhe100.a $(NETMAN_DIR)/lib/libtimer.a
+ground-cmd-test : gnd_commands.o of2g.o ground-cmd-test.o gtest_main.a $(NETMAN_DIR)/lib/libhe100.a $(NETMAN_DIR)/lib/libtimer.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@ -lrt -lpthread
 

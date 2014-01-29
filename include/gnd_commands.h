@@ -5,6 +5,8 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
+
+#include <unistd.h>
 #include "gnd_cdh.h"
 
 // These functions will generate the proper bytes to be transceived depending on the command

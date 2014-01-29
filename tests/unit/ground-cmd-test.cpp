@@ -22,6 +22,8 @@ TEST_F(ground_command_test, UploadCommand) {
 }
 
 TEST_F(ground_command_test, GetLogCommand) {
+  bool result = cmd_get_ss_log(SS_ACS, 100);
+  ASSERT_TRUE(result);
 }
 
 TEST_F(ground_command_test, RebootCommand) {
