@@ -21,13 +21,7 @@
 // 8. Review return types & function parameters
 // 9. Store and display time of received data
 // 10. Store command response/data
-
-// Reasons to use SQL for log managing:
-// 1. Obtain specific log information (temperature reading from sensor x)
-// 2. View all log with errors
-// 3. If in 1 file, we simplify file system structure
-// 4. Can use SQL api
-// 5. Better organization of data (seperates errors and actual telemetry)
+// 11. Find a way for abstraction for commands
 
 #include <inttypes.h>
 #include <string.h>
@@ -42,9 +36,11 @@ typedef enum {
   SS_MECH = 0x33,
   SS_PAYLOAD = 0x34,
   SS_POWER = 0x35,
-  SS_NETMAN = 0x36,
-  SS_BABYCRON = 0x37,
-  SS_WATCHPUPPY = 0x38
+  SS_SOFTWARE = 0x36,
+  SS_WATCHPUPPY = 0x37,
+
+  SS_BABYCRON = 0x38,
+  SS_NETMAN = 0x39
 } subsystem_t;
 
 // This enum defined the commands that can be sent to the satellite
@@ -59,7 +55,7 @@ typedef enum {
   CMD_REBOOT = 0x34, // TODO: Specify reboot reason
 
   // TODO: should the satellite automatically know how to decode when it receives a binary?
-  CMD_DECODE = 0x35,
+  CMD_DECODE = 0x36,
 
   // The following commands have not been implemented yet on the satellite
   CMD_KILL_PROCESS = 0x37,

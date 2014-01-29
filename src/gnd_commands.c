@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "../include/gnd_commands.h"
 #include "../include/of2g.h"
-
-#define MAX_FRAME_LENGTH 190
 
 bool cmd_get_time()
 {
@@ -88,16 +87,32 @@ bool cmd_upload(char* destination_path, char* filename)
 
 // size_t data_size = 1 + 3 + strlen(destination_path) + 3 + strlen(filename) + file_size;
 
-// unsigned char hex_cmd[UPLOAD_FILE_SIZE];
- char* hex_cmd;
- hex_cmd[0] = CMD_UPLOAD;
- int path_length = strlen(destination_path);
- snprintf(hex_cmd + 1, 4,"%d", path_length);
- strcat(hex_cmd, destination_path);
 
- int file_size;
- snprintf(hex_cmd + path_length + 1, 4, "%d", file_size);
- // Append content of the file
+  int path_length = strlen(destination_path);
+  struct stat st;
+  stat(filename, &st);
+  int file_size = st.st_size;
+
+  // bytes from the file that we can send such that the frame capacity is not exceeded
+  size_t data_bytes = OF2G_BUFFER_SIZE - 1 - 3 - path_length - 3;
+
+  char* hex_cmd;
+  hex_cmd[0] = CMD_UPLOAD;
+  snprintf(hex_cmd + 1, 4,"%d", path_length);
+  strcat(hex_cmd, destination_path);
+
+  snprintf(hex_cmd + path_length + 1, 4, "%d", file_size);
+
+  // Read data_bytes from file, queue frames until we reach end of file
+  /*
+    while(!eof)
+    {
+      size_t bytes_read = read(file, buffer, data_bytes);
+      strcat(hex_cmd, buffer);
+      push to queue
+    }
+*/
+
   return true;
 }
 

@@ -28,7 +28,7 @@ NETMAN_DIR = ../../../space-netman
 CPPFLAGS += -isystem $(GTEST_DIR)/include -I$(NETMAN_DIR)/lib/include -I$(USER_DIR)/include
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -pthread
+CXXFLAGS += -g -Wextra -pthread # -Wall
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.

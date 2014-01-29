@@ -27,6 +27,7 @@ bool cmd_start_process(subsystem_t ss);
 bool cmd_tx_test();
 
 // This function will notify the satellite to validate and execute the last received command
-bool cmd_execute();
+bool cmd_execute(void);
+bool cmd_execute(command_t cmd);
 
 #endif
