@@ -17,20 +17,22 @@
 GTEST_DIR = ../../../gtest-1.7.0
 
 # Where to find user code.
-USER_DIR = ../../../space-netman
+USER_DIR = ../../../ground-commander
+
+# Netman directory
+NETMAN_DIR = ../../../space-netman
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS += -isystem $(GTEST_DIR)/include -I$(USER_DIR)/lib/include
+CPPFLAGS += -isystem $(GTEST_DIR)/include -I$(NETMAN_DIR)/lib/include
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = netman-of2g-test netman-frame-test
-
+TESTS = ground-cmd-test
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
@@ -69,20 +71,15 @@ gtest_main.a : gtest-all.o gtest_main.o
 
 ###########################
 
-netman.o : $(USER_DIR)/src/netman.c $(USER_DIR)/include/netman.h of2g.o 
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/src/netman.c
+netman.o : $(NETMAN_DIR)/src/netman.c $(NETMAN_DIR)/include/netman.h of2g.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(NETMAN_DIR)/src/netman.c
 
-of2g.o : $(USER_DIR)/src/of2g.c $(USER_DIR)/include/of2g.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/src/of2g.c
+of2g.o : $(NETMAN_DIR)/src/of2g.c $(NETMAN_DIR)/include/of2g.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(NETMAN_DIR)/src/of2g.c
 
-netman-of2g-test.o : $(USER_DIR)/tests/unit/netman-of2g-test.cpp $(USER_DIR)/include/of2g.h  $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/tests/unit/netman-of2g-test.cpp
+ground-cmd-test.o : $(USER_DIR)/tests/unit/ground-cmd-test.cpp $(USER_DIR)/include/gnd_commands.h  $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/tests/unit/ground-cmd-test.cpp
 
-netman-of2g-test : of2g.o netman-of2g-test.o gtest_main.a $(USER_DIR)/lib/libhe100.a $(USER_DIR)/lib/libtimer.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@ -lrt -lpthread 
-
-netman-frame-test.o : $(USER_DIR)/tests/unit/netman-frame-test.cpp $(USER_DIR)/include/netman.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/tests/unit/netman-frame-test.cpp
-
-netman-frame-test : of2g.o netman-frame-test.o netman.o gtest_main.a $(USER_DIR)/lib/libhe100.a $(USER_DIR)/lib/libtimer.a
+ground-cmd-test : of2g.o ground-cmd-test.o gtest_main.a $(NETMAN_DIR)/lib/libhe100.a $(NETMAN_DIR)/lib/libtimer.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@ -lrt -lpthread
+

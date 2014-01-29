@@ -31,49 +31,48 @@
 
 #include <inttypes.h>
 #include <string.h>
-#include <boolstd.h>
-#include <type.h>
+#include <stdbool.h>
 
 // This enum describes the subsystem for obtaining information or to perform a specific command
 // TODO: Get commands for specific sensor
 typedef enum {
-  ACS = 0,
-  COMMS = 1,
-  CDH = 2,
-  MECH = 3,
-  PAYLOAD = 4,
-  POWER = 5,
-  NETMAN = 6
-  BABYCRON = 7,
-  WATCHPUPPY = 8
+  SS_ACS = 0x30,
+  SS_COMMS = 0x31,
+  SS_CDH = 0x32,
+  SS_MECH = 0x33,
+  SS_PAYLOAD = 0x34,
+  SS_POWER = 0x35,
+  SS_NETMAN = 0x36,
+  SS_BABYCRON = 0x37,
+  SS_WATCHPUPPY = 0x38
 } subsystem_t;
 
 // This enum defined the commands that can be sent to the satellite
 // TODO: Have more specific commands, ie: Get temperature reading from sensor X
 // Differentiate log (any notice) vs actual telemetry data
 typedef enum {
-  CMD_GET_TIME = 0,
-  CMD_SET_TIME = 1,
-  CMD_UPDATE = 2,
-  CMD_GET_LOG = 3,
-  CMD_REBOOT = 4, // TODO: Specify reboot reason
+  CMD_EXECUTE = 0x21,
+  CMD_GET_TIME = 0x30,
+  CMD_SET_TIME = 0x31,
+  CMD_UPLOAD  = 0x32,
+  CMD_GET_LOG = 0x33,
+  CMD_REBOOT = 0x34, // TODO: Specify reboot reason
 
   // TODO: should the satellite automatically know how to decode when it receives a binary?
-  CMD_DECODE = 5,
+  CMD_DECODE = 0x35,
 
   // The following commands have not been implemented yet on the satellite
-  CMD_UPLOAD = 6,
-  CMD_KILL_PROCESS = 7,
-  CMD_START_PROCESS = 8,
-  CMD_GET_REMAINING_MEMORY = 9,
+  CMD_KILL_PROCESS = 0x37,
+  CMD_START_PROCESS = 0x38,
+  CMD_GET_REMAINING_MEMORY = 0x39,
 
   // Verifies all processes currently active and their run time
   // TODO: Check definition: process vs subsystem
-  CMD_GET_ALL_PROCESS = 10,
+  CMD_GET_ALL_PROCESS = 0x3A,
 
   // Test communication with satellite
   // TODO: Add on satellite a way to response to this command for test purposes
-  CMD_TEST_TX = 11;
+  CMD_TEST_TX = 0x3B
 } command_t;
 
 // The following struct holds information regarding a subsystem
@@ -94,7 +93,7 @@ typedef struct {
 } cmd_info_t;
 
 // This function loads a command table and queues all commands to be transmitted.
-bool cdh_load(cmd_info_t cmdinfo)
+bool cdh_load(cmd_info_t cmdinfo);
 
 // Initializes the command queue
 bool cdh_queue_init();
@@ -118,6 +117,7 @@ bool cdh_queue_clear();
 bool cdh_rx_file();
 
 // This function stores received bytes into a data structure
+// TODO: cat a file
 bool cdh_store_recv_data();
 
 // This function transmit the prepared command frames
