@@ -85,33 +85,52 @@ bool cmd_upload(char* destination_path, char* filename)
 */
 
 
-// size_t data_size = 1 + 3 + strlen(destination_path) + 3 + strlen(filename) + file_size;
+// size_t data_size = 1 + 3 + strlen(destination_path) + 3 + file_content;
 
+  int i;
+  FILE* fp;
+  fp = fopen(filename, "r");
+  struct stat st;
+  int total_bytes_read = 0;
 
   int path_length = strlen(destination_path);
-  struct stat st;
+
+  // Get length of the file
   stat(filename, &st);
   int file_size = st.st_size;
 
   // bytes from the file that we can send such that the frame capacity is not exceeded
-  size_t data_bytes = OF2G_BUFFER_SIZE - 1 - 3 - path_length - 3;
+  size_t max_data_bytes = OF2G_BUFFER_SIZE - 1 - 3 - path_length - 3;
 
-  char* hex_cmd;
+  char hex_cmd[300];
   hex_cmd[0] = CMD_UPLOAD;
-  snprintf(hex_cmd + 1, 4,"%d", path_length);
+  hex_cmd[1] = '0';
+  snprintf(hex_cmd + 1 + 1, 4,"%d", path_length);
   strcat(hex_cmd, destination_path);
 
-  snprintf(hex_cmd + path_length + 1, 4, "%d", file_size);
 
-  // Read data_bytes from file, queue frames until we reach end of file
-  /*
-    while(!eof)
+  while(total_bytes_read != file_size)
+  {
+    size_t bytes_read = fread(hex_cmd + 1 + 3 + path_length + 3 + 2, 1, max_data_bytes, fp);
+    if(bytes_read < 100)
     {
-      size_t bytes_read = read(file, buffer, data_bytes);
-      strcat(hex_cmd, buffer);
-      push to queue
+      hex_cmd[1 + 3 + path_length + 1] = '0';
+      snprintf(hex_cmd + 1 + 3 + path_length + 2, 4, "%d", file_size);
     }
-*/
+    else
+    {
+      snprintf(hex_cmd + 1 + 3 + path_length + 1, 4, "%d", file_size);
+    }
+
+    for(i = 0; i <= 1 + 3 + path_length + 3 + bytes_read; ++i)
+    {
+      printf("%c", hex_cmd[i]);
+    }
+    printf("\n");
+
+    total_bytes_read += bytes_read;
+  }
+
 
   return true;
 }
