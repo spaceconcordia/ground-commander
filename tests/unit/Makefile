@@ -83,6 +83,6 @@ gnd_commands.o : $(USER_DIR)/src/gnd_commands.c $(USER_DIR)/include/gnd_commands
 ground-cmd-test.o : $(USER_DIR)/tests/unit/ground-cmd-test.cpp $(USER_DIR)/include/gnd_commands.h $(USER_DIR)/include/gnd_cdh.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/tests/unit/ground-cmd-test.cpp
 
-ground-cmd-test : gnd_commands.o of2g.o ground-cmd-test.o gtest_main.a $(NETMAN_DIR)/lib/libhe100.a $(NETMAN_DIR)/lib/libtimer.a
+ground-cmd-test : gnd_commands.o of2g.o ground-cmd-test.o gtest_main.a $(NETMAN_DIR)/lib/libhe100.a $(NETMAN_DIR)/lib/libtimer.a $(NETMAN_DIR)/lib/NamedPipe.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@ -lrt -lpthread
 
