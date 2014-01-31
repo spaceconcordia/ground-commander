@@ -108,42 +108,54 @@ bool cmd_upload(char* destination_path, char* filename)
   snprintf(hex_cmd + 1 + 1, 4,"%d", path_length);
   strcat(hex_cmd, destination_path);
 
-
   while(total_bytes_read != file_size)
   {
-    size_t bytes_read = fread(hex_cmd + 1 + 3 + path_length + 3 + 2, 1, max_data_bytes, fp);
+    char buffer[256];
+    size_t bytes_read = fread(buffer, 1, max_data_bytes, fp);
     if(bytes_read < 100)
     {
-      hex_cmd[1 + 3 + path_length + 1] = '0';
-      snprintf(hex_cmd + 1 + 3 + path_length + 2, 4, "%d", file_size);
+      hex_cmd[1 + 3 + path_length] = '0';
+      snprintf(hex_cmd + 1 + 3 + path_length + 1, 3, "%d", (int)bytes_read);
     }
     else
     {
-      snprintf(hex_cmd + 1 + 3 + path_length + 1, 4, "%d", file_size);
+      snprintf(hex_cmd + 1 + 3 + path_length, 4, "%d", file_size);
     }
 
     for(i = 0; i <= 1 + 3 + path_length + 3 + bytes_read; ++i)
     {
+      hex_cmd[1 + 3 + path_length + 3 + i] = buffer[i];
+    }
+    for(i = 0; i < 1 + 3 + path_length + 3 + bytes_read; ++i)
+    {
       printf("%c", hex_cmd[i]);
+    }
+    printf("\nHEX : \n");
+    for(i = 0; i < 1 + 3 + path_length + 3 + bytes_read; ++i)
+    {
+      printf("\\\\x%2X", hex_cmd[i]);
     }
     printf("\n");
 
+    /*
+       add to command queue
+    */
+
     total_bytes_read += bytes_read;
   }
-
 
   return true;
 }
 
 // This function will notify the satellite to validate and execute the last received command
-bool cmd_execute()
+bool cmd_execute(void)
 {
   size_t data_length = 1;
   unsigned char hex_cmd = 0x21;
   return true;
 }
 
-bool cmd_decode()
+bool cmd_decode(char* src_path, char* dest_path, size_t sizee)
 {
   return true;
 }

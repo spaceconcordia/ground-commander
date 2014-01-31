@@ -19,6 +19,7 @@ TEST_F(ground_command_test, SetTimeCommand) {
 }
 
 TEST_F(ground_command_test, UploadCommand) {
+  bool result = cmd_upload("/home/logs/test.txt", "test.txt");
 }
 
 TEST_F(ground_command_test, GetLogCommand) {
