@@ -100,8 +100,8 @@ bool cmd_upload(char* destination_path, char* filename)
   int file_size = st.st_size;
 
   // bytes from the file that we can send such that the frame capacity is not exceeded
-  size_t max_data_bytes = OF2G_BUFFER_SIZE - 1 - 3 - path_length - 3;
-
+  size_t max_data_bytes = 190 - 1 - 3 - path_length - 3;
+  printf("Max data bytes: %zu\n", max_data_bytes);
   char hex_cmd[300];
   hex_cmd[0] = CMD_UPLOAD;
   hex_cmd[1] = '0';
@@ -119,7 +119,7 @@ bool cmd_upload(char* destination_path, char* filename)
     }
     else
     {
-      snprintf(hex_cmd + 1 + 3 + path_length, 4, "%d", file_size);
+      snprintf(hex_cmd + 1 + 3 + path_length, 4, "%d", (int)bytes_read);
     }
 
     for(i = 0; i <= 1 + 3 + path_length + 3 + bytes_read; ++i)
