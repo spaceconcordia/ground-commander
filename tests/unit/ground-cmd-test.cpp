@@ -13,9 +13,11 @@ class ground_command_test : public ::testing::Test {
 };
 
 TEST_F(ground_command_test, GetTimeCommand) {
+  bool result = cmd_get_time();
 }
 
 TEST_F(ground_command_test, SetTimeCommand) {
+  cmd_set_time(2013);
 }
 
 TEST_F(ground_command_test, UploadCommand) {
@@ -27,7 +29,12 @@ TEST_F(ground_command_test, GetLogCommand) {
   ASSERT_TRUE(result);
 }
 
+TEST_F(ground_command_test, Execute) {
+  bool result = cmd_execute();
+}
+
 TEST_F(ground_command_test, RebootCommand) {
+  bool result = cmd_reboot(2013, true, "reason");
 }
 
 TEST_F(ground_command_test, DecodeCommand) {
