@@ -7,7 +7,7 @@
 
 bool cmd_get_time()
 {
-  size_t data_size = 1;
+  //size_t data_size = 1;
   unsigned char hex_cmd = CMD_GET_TIME;
   // add to command queue
   return true;
@@ -15,7 +15,7 @@ bool cmd_get_time()
 
 bool cmd_set_time(uint32_t time)
 {
-  size_t data_size = 1;
+  //size_t data_size = 1;
   unsigned char hex_cmd = CMD_SET_TIME;
   // add to command queue
   return true;
@@ -23,7 +23,7 @@ bool cmd_set_time(uint32_t time)
 
 bool cmd_get_ss_log(subsystem_t subsystem, size_t bytes)
 {
-  size_t data_size = 5;
+  //size_t data_size = 5;
   char hex_cmd[5];
   hex_cmd[0] = CMD_GET_LOG;
   hex_cmd[1] = subsystem;

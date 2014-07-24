@@ -24,16 +24,19 @@ try:
 except NameError:
     raw_input = input
 
-GS_BIN_DIR      = '/usr/bin/'
-GS_LOG_FILE     = '/var/log/gs.log'
-GS_INPUT_PIPE   = '/home/pipes/gnd-input'
-GS_NETMAN_PATH  = GS_BIN_DIR+'gnd'
-GS_DECODE_RB    = GS_BIN_DIR+'decode-command.rb' 
-GS_GETLOG_RB    = GS_BIN_DIR+'getlog-command.rb' 
-GS_GETTIME_RB   = GS_BIN_DIR+'gettime-command.rb'
-GS_REBOOT_RB    = GS_BIN_DIR+'reboot-command.rb'
-GS_UPDATE_RB    = GS_BIN_DIR+'update-command.rb'
-GS_STEP2_RB     = GS_BIN_DIR+'step2.rb'
+GS_RUNNING      = False
+GS_BIN_PATH = "/usr/bin";
+GS_PATH = {
+    "LOG"            : '/var/log/gs.log',
+    "INPUT_PIPE"     : '/home/pipes/gnd-input',
+    "NETMAN"         : GS_BIN_PATH+'gnd',
+    "DECODE_RB"      : GS_BIN_PATH+'decode-command.rb',
+    "GETLOG_RB"      : GS_BIN_PATH+'getlog-command.rb',
+    "GETTIME_RB"     : GS_BIN_PATH+'gettime-command.rb',
+    "REBOOT_RB"      : GS_BIN_PATH+'reboot-command.rb',
+    "UPDATE_RB"      : GS_BIN_PATH+'update-command.rb',
+    "STEP2_RB"       : GS_BIN_PATH+'step2.rb'
+}
 
 KW_GETTIME  = "010001313337"    #0x01 0x00 0x01 0x31 0x33 0x37
 KW_CONFIRM  = "02000121242b"    #0x02 0x00 0x01 0x21 0x24 0x2b
@@ -59,34 +62,51 @@ def whereis(program):
 def usage():
     print(globals()['__doc__'])
 
-def fail():
+def fail(error):
+    print "\r\nFailed: "+error+" Aborting..."
     sys.exit(1)
 
-def exit():
+def exit(exit_message):
+    print "\r\nExiting: "+exit_message
     sys.exit(0)
 
 def signal_handler(signal, frame):
   print '\r\nCaught Cntl+C!'
 signal.signal(signal.SIGINT, signal_handler)
 
+def check_requirements():
+    for requirement in GS_PATH:
+        if ( os.path.isfile(requirement) ):
+            continue
+        else : fail(requirement+" is not present!")
+            
+
+def start_ground_commander():
+  ground_commander = subP(GS_NETMAN);
+  print ground_commander.communicate()
+
 def command_line_interface():
   print 'Enter commands for the ground station below.\r\nType "menu" for predefined commands, and "exit" to quit'
   input=1
   while 1:
-    input=raw_input( time.strftime("%H:%M:%S") + " >> " )
+    gs_running_led = "GO >> " if GS_RUNNING else "NOGO >> "
+    input=raw_input( gs_running_led + time.strftime("%H:%M:%S") + " >> " )
     if ((input == "exit") | (input == "q")):
       exit()    
     if ((input == "menu") | (input == "help") | (input == "h")):
       usage()
+    if ((input == "start") | (input == "on") | (input == "s")):
+      start_ground_commander()
 
 def main():
     # TODO not working #location = whereis('echo')
     #if location is not None:
     #    print location
-    subShell(['echo', 'hello space'])
-    process = subprocess.Popen(['echo', 'Hello World!'], shell=False, stdout=subprocess.PIPE)
-    print process.communicate()
+    #subShell(['echo', 'hello space'])
+    #process = subprocess.Popen(['echo', 'Hello World!'], shell=False, stdout=subprocess.PIPE)
+    #print process.communicate()
     usage()
+    check_requirements()
     command_line_interface()
     # exit()
 
