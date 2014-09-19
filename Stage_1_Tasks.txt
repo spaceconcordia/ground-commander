@@ -1,0 +1,49 @@
+Stage_1_Tasks.txt
+
+:Author: ngc598
+:Email: ngc598@Triangulum
+:Date: 2014-09-18 19:35
+
+Radio hardware programming
+Skills required: C/C++, some RF
+- program the TNC to be compatible with the Netman, or find compatible package
+
+Antenna Control
+- control the motors to point the antenna based on values provided by STK
+
+Log Management and Interpretation:
+- take our split archives on the fly and reassemble them in an organized fashion into a file system (determine a good file structure)
+- interpret error codes present in log entries and beautify/humanify them
+-
+
+Error Interpretation and Translation - Error Class
+Skills Required: C++ knowledge
+
+- write an error class 
+    Error IDs are managed in SpaceDecl.h and in the respective system. 
+    No collisions should occur with the SpaceDecl.h codes. 
+    Otherwise, when we are entering the log file for a certain subsystems, 
+        the ground station software should enter a mode to interpret that systems error codes. 
+    e.g. Helium error log is opened, open an instance of the error class for helium, or relate the helium ID and status code. 
+    TODO expand and clarify
+
+Ground Commander
+Skills required: C++ knowledge, Linux
+Level: Advanced
+
+- write a command-line interface/API to control and display execution of ground-commander, ground netman, transceiver status, etc
+- Write the new main function from the ground to be compatible with space-commander, and ground netman
+-
+
+Ground Station IT support
+Skills required: Linux
+
+- encrypt, secure, and backup our systems (e.g. entire backup computer in case primary one goes down)
+- create webserver to display the satellite status publicly
+- enable secure remote access as admissible
+- create email alerts to admins if something on ground station goes wrong
+- enable camera feed of the antenna
+-
+
+
+.. vim: expandtab filetype=rst shiftwidth=4 tabstop=4
