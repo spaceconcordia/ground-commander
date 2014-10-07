@@ -8,8 +8,10 @@
 
 """
 This is a command-line interface to run the ground station interactively
-exit - quit - q : close the program
-help - menu - h : show this menu
+start   - on   - s : start the ground station for normal operation
+mock    - mk   - m : start the mock satellite interaction locally (no radio)
+exit    - quit - q : close the program
+help    - menu - h : show this menu
 """
 
 #import pexpect
@@ -25,9 +27,9 @@ except NameError:
     raw_input = input
 
 GS_RUNNING      = False
-GS_BIN_PATH = "/usr/bin";
+GS_BIN_PATH = "/home/apps/gs";
 GS_PATH = {
-    "LOG"            : '/var/log/gs.log',
+    "LOG"            : '/home/logs/gs.log',
     "INPUT_PIPE"     : '/home/pipes/gnd-input',
     "NETMAN"         : GS_BIN_PATH+'gnd',
     "DECODE_RB"      : GS_BIN_PATH+'decode-command.rb',
@@ -80,9 +82,25 @@ def check_requirements():
             continue
         else : fail(requirement+" is not present!")
             
+def start_ground_station():
+  # start ground-netman
+  ground_netman = subP(GS_NETMAN);
+  print ground_netman.communicate()
 
-def start_ground_commander():
-  ground_commander = subP(GS_NETMAN);
+  # test local radio
+
+  # ping satellite
+
+  # start ground-commmander and drop to shell
+  start_ground_commander()
+#end def
+
+def start_mock_interaction():
+  mock_satellite = subP(GS_NETMAN);
+  print ground_commander.communicate()
+
+def start_ground_commander(): 
+  ground_commander = subprocess.Popen(['python', 'ground-commander.py'], shell=False, stdout=subprocess.PIPE)
   print ground_commander.communicate()
 
 def command_line_interface():
@@ -96,7 +114,9 @@ def command_line_interface():
     if ((input == "menu") | (input == "help") | (input == "h")):
       usage()
     if ((input == "start") | (input == "on") | (input == "s")):
-      start_ground_commander()
+      start_ground_station()
+    if ((input == "mock") | (input == "mk") | (input == "m")):
+      start_mock_interaction()
 
 def main():
     # TODO not working #location = whereis('echo')
@@ -108,6 +128,9 @@ def main():
     usage()
     check_requirements()
     command_line_interface()
+
+    # off
+
     # exit()
 
 if __name__ == '__main__':
