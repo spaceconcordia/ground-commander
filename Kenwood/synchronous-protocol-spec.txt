@@ -1,0 +1,168 @@
+http://pastebin.com/5pcYFCed
+http://pastebin.com/raw.php?i=5pcYFCed
+
+Kenwood
+
+The protocoll used here is a synchron serial protocoll.
+First let us start with the connector pinout.
+
+The pins have a 2.54mm distance, so you can simply build a plug using some prototyping board .........
+
+New connector pin-out (for head units >'99?) Thanks to Patrick Loef for this information.
+pin     direction   description
+1   O   CH-REQH - Request output to changer; "Low" : Request
+2   -   Ground
+3   -   Vcc +12V
+4   O   CH-CON - Changer control; "High" : Operation mode "Low" : Standby
+5   I   CH-MUTE - Mute request from changer; "High" : Mute
+6   -   AGND - Audio Ground
+7   O   CH-RST - Reset output to changer
+8   I   Audio right channel
+9   I   CH-REQC - Request input from changer; "Low" : Request
+10  I   CH-DATAC - Data input from changer
+11  O   CH-DATAH - Data output to changer
+12  I   Audio left channel
+13  I/O     CH_CLK - Clock input/output for changer
+
+Kenwood Connector Picture
+
+The following works only with newer kenwood radios.
+Older models have the same pinout but use some more simple protocol ...
+
+The clock low and high periods had a length of 4us.
+The data is transfered in bytes ( 8 bits ... MSB first ), data is valid at the rising clock edge..
+The data transfer is initiated either by the radio or the changer, the initiator just pulls its fs line low.
+When the changer starts the communication it gets 40 clocks from the radio ( 4 bytes addr + 1byte data size ).
+The radio then sets its fs to low if it accepts the transfer.
+When a transfer is initiated by the radio by setting its fs low it waits for the changer to answer with a low fs,
+then it sends the 4 byte addr header, the size byte for the data and the data.
+Packet header, direction: both
+byte    log value ( r->cdc)     description
+0   0x29    destination address
+1   0x10    destination address
+2   0x1E    own address
+3   0x00    own address
+4   x   data size in bytes
+5   x   first data byte
+4+data size     x   last data byte
+
+From this point I only write the data part of a packet
+initialisation handshake answer, direction: cdc->r
+byte    log value   description
+0   0x11    command identifier
+1   0xA4    cycle numer of the above packet
+2   0x00    ??
+3   0x01    ??
+4   0x02    ??
+
+ 
+send after above packet, maybe radio identification and caps, direction: r->cdc
+byte    log value   description
+0   0x20    command identifier
+1   0x00     
+2   0x11     
+3   0x01     
+4   0x03     
+5   0x0B     
+6   0x0B     
+7   0x07     
+8   0x05     
+9   0x83     
+10  0x84     
+11  0xC0     
+12  0xC1     
+13  0xC2     
+14  0xC3     
+15  0xC4     
+16  0xC5     
+17  0xC6     
+
+ 
+send after above packet, maybe init ack from radio, direction: r->cdc
+byte    log value   description
+0   0x20    command identifier
+1   0x01     
+2   0x11     
+3   0x29    changer address
+4   0x10    changer address
+5   0x00    maybe last bytes of cmd 0x11(cdc->r)
+6   0x01    maybe last bytes of cmd 0x11(cdc->r)
+7   0x02    maybe last bytes of cmd 0x11(cdc->r)
+
+ 
+changer caps info, send after above packet, direction: cdc->r
+byte    log value   description
+0   0x70    command identifier
+1   0x02     
+2   0x0A    maybe disc count
+3   0x3F     
+4   0x03     
+5   0x0C     
+6   0x02     
+
+ 
+play position info, direction: cdc->r
+byte    log value   description
+0   0x60    command identifier
+1   0x02    maybe sub command id
+2   0x00     
+3   0x00     
+4   0x00    error code, 0 is no error
+5   0x00    changer status ( load, eject, ..... )
+6   0x02    play status (1 - play, 2 - pause )
+7   0x00     
+8   0x01     
+9   0x00    track order mode ( normal 0, tscan 1, dscan 2,random 6, ...)
+10  0x04     
+11  0xBB    some bcd number field, displayed when field 3 != 0
+12  0x01     
+13  0x0B    track number
+14  0x07    disc number
+15  0x01    min ( bcd )
+16  0x22    sec ( bcd )
+17  0x62    min disc ( bcd )
+18  0x26    sec disc ( bcd )
+19  0x09    min remain ( bcd )
+20  0x30    sec remain ( bcd )
+
+ 
+text info request, direction: r->cdc
+byte    log value   description
+0   0x42    command identifier
+1   0x02     
+2   0x07    disc number
+3   0x0A    track number
+4   0x00    text section number, sections had 12 bytes size here
+5   0x00     
+6   0x80    text id ( 0x80 -> name 0x81 -> artist )
+
+ 
+text info send after request, direction: cdc->r
+byte    log value   description
+0   0x62    command identifier
+1   0x02     
+2   0x07    disc number
+3   0x02     
+4   0x0A    track number ( 0 -> disc title transfer )
+5   0x00    text section number, sections had 12 bytes size here
+6   0x09     
+7   0x00     
+8   0x80    text id ( 0x80 -> name 0x81 -> artist )
+9..20   x   text
+
+ 
+commands send when keys on the radio were pressed, direction: r->cdc
+byte    log value (play)    fwd(toggle)     bwd(toggle)     disc-(toggle)   disc+(toggle)   description
+0   0x50    0x50,0x50   0x50,0x50   0x50,0x50   0x50,0x50   command identifier
+1   0x02    0x01,0x04   0x01,0x04   0x02,0x00   0x02,0x00   maybe event id ( 0 all up, 01 down, 02 toggle, 04 up, 06 hold )
+2   0x02    0x02,0x02   0x02,0x02   0x02,0x02   0x02,0x02    
+3   0x00    0x02,0x02   0x02,0x02   0x00,0x00   0x00,0x00    
+4   0x07    0x01,0x01   0x02,0x02   0x04,0x00   0x02,0x00   key id
+5   0x00    0x05,0x05   0x06,0x06   0x00,0x00   0x00,0x00    
+
+ 
+
+Using the information above you should have some starting point if you are intrested in doing your own project, it is simple to build
+a converter to send and receive these commands using a pc so you can find out the meaning of other commands and fields if you need.
+
+HoZy
