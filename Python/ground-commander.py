@@ -8,7 +8,18 @@
 
 """
 This is a prototype of the ground station commander in Python to simulate certain commands 
+st - settime    set the satellite time
+gt - gettime    get the satellite time
+ud - update     update a binary on the satellite
+gl - getlog     get a log file from the satellite
+rb - reboot     reboot the satellite
+dc - decode
+dl - deletelog  delete a log from the satellite
+tt - timetag    timetag a command on the satellite
+q  - exit       and close all other ground station applications
 """
+
+import os
 
 settime   = bytearray.fromhex('30 21');
 gettime   = bytearray.fromhex('31 21');
@@ -19,15 +30,8 @@ decode    = bytearray.fromhex('35 21');
 deletelog = bytearray.fromhex('36 21');
 timetag   = bytearray.fromhex('37 21');
 
-def GC_printMenu():
-  print 'st - settime    set the satellite time\r'
-  print 'gt - gettime    get the satellite time\r'
-  print 'ud - update     update a binary on the satellite\r'
-  print 'gl - getlog     get a log file from the satellite\r'
-  print 'rb - reboot     reboot the satellite\r'
-  print 'dc - decode\r'
-  print 'dl - deletelog  delete a log from the satellite\r'
-  print 'tt - timetag    timetag a command on the satellite\r'
-  print 'q  - exit       and close all other ground station applications\r\n'
 
-GC_printMenu()
+def usage():
+    print(globals()['__doc__'])
+
+usage()
