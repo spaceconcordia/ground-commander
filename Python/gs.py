@@ -8,10 +8,11 @@
 
 """
 This is a command-line interface to run the ground station interactively
-start   - on   - s : start the ground station for normal operation
-mock    - mk   - m : start the mock satellite interaction locally (no radio)
-exit    - quit - q : close the program
-help    - menu - h : show this menu
+start       - on   - s : start the ground station for normal operation
+mock        - mk   - m : start the mock satellite interaction locally (no radio)
+teardown    - td   - t : terminate all running ground station or mock satellite processes
+exit        - quit - q : close the program
+help        - menu - h : show this menu
 """
 
 #import pexpect
@@ -151,14 +152,19 @@ def tear_down() :
     global ground_netman
     global ground_commander
     global mock_satellite_netman
-    if ( ground_netman is not None ) :
+    global mock_satellite_commander
+    if ( ground_netman is not None ) and ( is_subprocess_running(ground_netman) ) :
         ground_netman.terminate()
-    if ( ground_commander is not None ) :
+        print "[NOTICE] Ground Netman was terminated"
+    if ( ground_commander is not None ) and ( is_subprocess_running(ground_commander) ) :
         ground_commander.terminate()
-    if ( mock_satellite_netman is not None ) :
+        print "[NOTICE] Ground Commander was terminated"
+    if ( mock_satellite_netman is not None ) and ( is_subprocess_running(mock_satellite_netman ) ) :
         mock_satellite_netman.terminate()
-    if ( mock_satellite_commander is not None ) :
+        print "[NOTICE] Mock Satellite Netman was terminated"
+    if ( mock_satellite_commander is not None ) and ( is_subprocess_running(mock_satellite_commander) ) :
         mock_satellite_commander.terminate()
+        print "[NOTICE] Mock Satellite Commander was terminated"
 
 def start_ground_station():
   # test local radio
@@ -205,6 +211,8 @@ def command_line_interface():
       start_ground_station()
     if ((input == "mock") | (input == "mk") | (input == "m")):
       start_mock_interaction()
+    if ((input == "teardown") | (input == "td") | (input == "t")):
+      tear_down()
 
 #-------------------------------------------------------------
 # GROUND STATION FUNCTIONS 
