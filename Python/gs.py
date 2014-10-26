@@ -46,7 +46,7 @@ GS_PATH = {
     "INPUT_PIPE"        : "/home/pipes/gnd-input",
     "NETMAN"            : GS_BIN_PATH+"gnd",
     "GROUND_COMMANDER"  : "ground-commander.py",
-    "MOCK_SAT_NM"       : GS_BIN_PATH+"sat",
+    "MOCK_SAT_NM"       : GS_BIN_PATH+"mock_sat",
     "MOCK_SAT_CMDR"     : GS_BIN_PATH+"space-commander",
     "DECODE_RB"         : GS_BIN_PATH+"decode-command.rb",
     "GETLOG_RB"         : GS_BIN_PATH+"getlog-command.rb",
@@ -221,11 +221,15 @@ def start_ground_station():
 #end def
 
 def start_mock_interaction():
+
   global mock_satellite_commander
   mock_satellite_commander = start_mock_satellite_commander()
+
   global mock_satellite_netman
   mock_satellite_netman = start_mock_satellite_netman()
+
   start_ground_station()
+
   global log_window
   log_window = open_log_window()
 

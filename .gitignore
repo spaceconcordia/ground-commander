@@ -19,3 +19,6 @@
 
 # Swap
 *.swp
+
+# Specific
+last-command
