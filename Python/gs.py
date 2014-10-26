@@ -63,7 +63,7 @@ LOG_FILES = {
     "GROUND_COMMANDER"  : GS_LOG_PATH+"GROUND_COMMANDER"+iso_today+GS_LOG_EXT,
     "GROUND_RADIO"      : GS_LOG_PATH+""+iso_today+GS_LOG_EXT,
     "MOCK_SAT_NM"       : GS_LOG_PATH+"Netman"+iso_today+GS_LOG_EXT,
-    "MOCK_SAT_CMDR"     : GS_LOG_PATH+"Commander"+iso_today+GS_LOG_EXT,
+    "MOCK_SAT_CMDR"     : GS_LOG_PATH+"COMMANDER"+iso_today+GS_LOG_EXT,
     "MOCK_SAT_RADIO"    : GS_LOG_PATH+"HE100"+iso_today+GS_LOG_EXT
 }
 
@@ -221,13 +221,13 @@ def start_ground_station():
 #end def
 
 def start_mock_interaction():
+  global mock_satellite_commander
+  mock_satellite_commander = start_mock_satellite_commander()
   global mock_satellite_netman
   mock_satellite_netman = start_mock_satellite_netman()
   start_ground_station()
   global log_window
   log_window = open_log_window()
-  global mock_satellite_commander
-  mock_satellite_commander = start_mock_satellite_commander()
 
 def open_log_window():
     log_view_command = "tail -f"
