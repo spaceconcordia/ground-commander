@@ -61,9 +61,9 @@ GS_LOG_EXT = ".log"
 LOG_FILES = {
     "NETMAN"            : GS_LOG_PATH+"GROUND_NETMAN"+iso_today+GS_LOG_EXT,
     "GROUND_COMMANDER"  : GS_LOG_PATH+"GROUND_COMMANDER"+iso_today+GS_LOG_EXT,
-    "GROUND_RADIO"      : GS_LOG_PATH+""+iso_today+GS_LOG_EXT,
-    "MOCK_SAT_NM"       : GS_LOG_PATH+"Netman"+iso_today+GS_LOG_EXT,
-    "MOCK_SAT_CMDR"     : GS_LOG_PATH+"Commander"+iso_today+GS_LOG_EXT,
+    "GROUND_RADIO"      : GS_LOG_PATH+"GROUND_RADIO"+iso_today+GS_LOG_EXT,
+    "MOCK_SAT_NM"       : GS_LOG_PATH+"NETMAN"+iso_today+GS_LOG_EXT,
+    "MOCK_SAT_CMDR"     : GS_LOG_PATH+"COMMANDER"+iso_today+GS_LOG_EXT,
     "MOCK_SAT_RADIO"    : GS_LOG_PATH+"HE100"+iso_today+GS_LOG_EXT
 }
 
