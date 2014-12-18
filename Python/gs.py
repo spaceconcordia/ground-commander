@@ -283,6 +283,10 @@ def command_line_interface():
     if ( is_subprocess_running(mock_satellite_commander) ):
         if (( input == "gt" ) | (input == "gettime")):
             send_command(gettime)
+        if (( input == "gl" ) | (input == "getlog")):
+            input=raw_input("Please enter the")
+            #isotoday
+            send_command(gettime)
         if (( input == "cf" ) | (input == "confirm")):
             send_command(confirm)
 
