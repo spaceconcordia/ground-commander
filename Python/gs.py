@@ -71,7 +71,7 @@ KW_GETTIME  = "010001313337"    #0x01 0x00 0x01 0x31 0x33 0x37
 KW_CONFIRM  = "02000121242b"    #0x02 0x00 0x01 0x21 0x24 0x2b
 KW_ACK      = "31210052d5"      #0x31 0x21 0x00 0x52 0xd5
 
-settime   = bytearray.fromhex('30');
+settime   = bytearray.fromhex('30 D8 56 B1 81');
 gettime   = bytearray.fromhex('31');
 update    = bytearray.fromhex('32');
 getlog    = bytearray.fromhex('33');
@@ -147,6 +147,30 @@ def send_command(command):
     input_pipe = open(GS_PATH["INPUT_PIPE"],"w")
     input_pipe.write(command)
     input_pipe.close()
+
+#-------------------------------------------------------------
+# COMMAND WRAPPERS AND TOOLS
+#-------------------------------------------------------------
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+def is_valid_time_t(s):
+    if (len(s) >8 or len(s) < 4):
+        return False
+    return is_number(s)
+
+def return_settime_command_buffer():
+    print "Enter the time in seconds since epoc for which to set the time:"
+    input=raw_input( go_no_go() + " >> " + time.strftime("%H:%M:%S") + " >> " )
+    while( not is_valid_time_t(input) ):
+        print "Try again, a valid number with at least 4 digits"
+        input=raw_input( go_no_go() + " >> " + time.strftime("%H:%M:%S") + " >> " )
+    return settime+input
 
 
 #-------------------------------------------------------------
@@ -264,11 +288,14 @@ def go_no_go():
   global ground_netman
   return "GO" if is_subprocess_running(ground_netman) is True else "NOGO"
 
+def prompt():
+    return go_no_go() + " >> " + time.strftime("%H:%M:%S") + " >> "
+
 def command_line_interface():
   print 'Enter commands for the ground station below.\r\nType "menu" for predefined commands, and "exit" to quit'
   input=1
   while 1:
-    input=raw_input( go_no_go() + " >> " + time.strftime("%H:%M:%S") + " >> " )
+    input=raw_input( prompt() )
     if ((input == "exit") | (input == "q")):
       tear_down()
       exit("Because you asked to.")    
@@ -283,6 +310,9 @@ def command_line_interface():
     if ( is_subprocess_running(mock_satellite_commander) ):
         if (( input == "gt" ) | (input == "gettime")):
             send_command(gettime)
+        if (( input == "st" ) | (input == "settime")):
+            settime_command_buffer = return_settime_command_buffer() 
+            send_command(settime_command_buffer)
         if (( input == "gl" ) | (input == "getlog")):
             input=raw_input("Please enter the")
             #isotoday

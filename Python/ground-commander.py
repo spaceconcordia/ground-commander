@@ -14,6 +14,11 @@
 #dl - deletelog  delete a log from the satellite
 #tt - timetag    timetag a command on the satellite
 
+def prompt():
+    return go_no_go() + " >> " + time.strftime("%H:%M:%S") + " >> "
+
+
+
 """
 This is a prototype of the ground station commander in Python to simulate certain commands 
 gt - gettime    get the satellite time
