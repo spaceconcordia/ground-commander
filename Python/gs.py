@@ -180,7 +180,7 @@ def check_requirements():
     for key, requirement in GS_PATH.items():
         if ( os.path.isfile(requirement) ) or ( stat.S_ISFIFO(os.stat(requirement).st_mode) ):
             continue
-        else : fail(key+" ("+requirement+") is not present!")
+        else : fail(key+" ("+requirement+") is not present! Try running 'MANAGE_CS1.sh -d'")
 
 def start_process(process_name):
   print "[NOTICE] "+process_name+" STARTING"
@@ -280,8 +280,9 @@ def open_log_window():
         if ( os.path.isfile(logfile) ):
             log_view_command+=" "+logfile
         else : print key+" ("+logfile+") is not present!"
-    print "xterm -e "+log_view_command
-    return subP(['xterm', '-e', log_view_command])
+    print "In a separate terminal window, run the following command"
+    print log_view_command
+    #return subP(['xterm', '-e', log_view_command])
     #subprocess.call(['tmux', 'split-window', "'"+log_view_command+"'"])
 
 def go_no_go():
