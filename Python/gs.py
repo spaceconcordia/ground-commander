@@ -45,7 +45,7 @@ GS_PATH = {
     "LOG"               : "/home/logs/gs.log",
     "INPUT_PIPE"        : "/home/pipes/gnd-input",
     "NETMAN"            : GS_BIN_PATH+"gnd",
-    "GROUND_COMMANDER"  : "ground-commander.py",
+    "GROUND_COMMANDER"  : GS_BIN_PATH+"ground-commander",
     "MOCK_SAT_NM"       : GS_BIN_PATH+"mock_sat",
     "MOCK_SAT_CMDR"     : GS_BIN_PATH+"space-commander",
     "DECODE_RB"         : GS_BIN_PATH+"decode-command.rb",
@@ -201,12 +201,15 @@ def start_mock_satellite_commander() :
   return start_process("MOCK_SAT_CMDR")
 
 def start_ground_commander(): 
-  print "[NOTICE] GROUND COMMANDER STARTING..."
-  ground_commander = subP(['python', GS_PATH["GROUND_COMMANDER"]])
-  stdout, stderr = ground_commander.communicate()
-  print stdout
-  print stderr
-  return ground_commander
+  #print "[NOTICE] GROUND COMMANDER STARTING..."
+  #global ground_commander
+  return start_process("GROUND_COMMANDER")
+
+  #ground_commander = subP(['python', GS_PATH["GROUND_COMMANDER"]])
+  #stdout, stderr = ground_commander.communicate()
+  #print stdout
+  #print stderr
+  #return ground_commander
 
   # TODO when real ground-commander exists
   #if is_subprocess_running(ground_commander):
@@ -309,6 +312,7 @@ def command_line_interface():
     if ((input == "teardown") | (input == "td") | (input == "t")):
       tear_down()
     if ( is_subprocess_running(mock_satellite_commander) ):
+        print("This is a prototype of the ground station commander in Python to simulate certain commands\n gt - gettime    get the satellite time\n cf - confirm    prompt the satellite to go ahead with the previous command\n q  - exit       and close all other ground station applications");
         if (( input == "gt" ) | (input == "gettime")):
             send_command(gettime)
         if (( input == "st" ) | (input == "settime")):
