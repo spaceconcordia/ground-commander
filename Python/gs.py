@@ -58,10 +58,12 @@ GS_PATH = {
 
 GS_LOG_PATH = "/home/logs/"
 GS_LOG_EXT = ".log"
-LOG_FILES = {
+SAT_LOG_FILES = {
     "MOCK_SAT_NM"       : GS_LOG_PATH+"NETMAN"+iso_today+GS_LOG_EXT,
     "MOCK_SAT_CMDR"     : GS_LOG_PATH+"COMMANDER"+iso_today+GS_LOG_EXT,
     "MOCK_SAT_RADIO"    : GS_LOG_PATH+"HE100"+iso_today+GS_LOG_EXT,
+}
+GND_LOG_FILES = {
     "GROUND_NETMAN"     : GS_LOG_PATH+"GROUND_NETMAN"+iso_today+GS_LOG_EXT,
     "GROUND_COMMANDER"  : GS_LOG_PATH+"GROUND_COMMANDER"+iso_today+GS_LOG_EXT,
     "GROUND_RADIO"      : GS_LOG_PATH+"GROUND_RADIO"+iso_today+GS_LOG_EXT,
@@ -71,7 +73,7 @@ KW_GETTIME  = "010001313337"    #0x01 0x00 0x01 0x31 0x33 0x37
 KW_CONFIRM  = "02000121242b"    #0x02 0x00 0x01 0x21 0x24 0x2b
 KW_ACK      = "31210052d5"      #0x31 0x21 0x00 0x52 0xd5
 
-settime   = bytearray.fromhex('30 D8 56 B1 81');
+settime   = bytearray.fromhex('30 64 00 00 00 00');
 gettime   = bytearray.fromhex('31');
 update    = bytearray.fromhex('32');
 getlog    = bytearray.fromhex('33');
@@ -252,6 +254,7 @@ def tear_down() :
     if ( log_window is not None ) and ( is_subprocess_running(log_window) ) :
         log_window.terminate()
         print "[NOTICE] Log Window was terminated"
+    subprocess.call([ 'killall', '-9', 'space-commander', 'ground-commander', 'mock_sat','gnd']) # TODO BAD, not OS independent
 
 
 def start_ground_station():
@@ -282,14 +285,19 @@ def start_mock_interaction():
   log_window = open_log_window()
 
 def open_log_window():
-    log_view_command = "tail -f"
-    subP(['ls', GS_LOG_PATH])
-    for key, logfile in LOG_FILES.items():
+    sat_log_view_command = "tail -f"
+    for key, logfile in SAT_LOG_FILES.items():
         if ( os.path.isfile(logfile) ):
-            log_view_command+=" "+logfile
+            sat_log_view_command+=" "+logfile
+        else : print key+" ("+logfile+") is not present!"
+    gnd_log_view_command = "tail -f"
+    for key, logfile in GND_LOG_FILES.items():
+        if ( os.path.isfile(logfile) ):
+            gnd_log_view_command+=" "+logfile
         else : print key+" ("+logfile+") is not present!"
     print "In a separate terminal window, run the following command"
-    print log_view_command
+    print sat_log_view_command
+    print gnd_log_view_command
     #return subP(['xterm', '-e', log_view_command])
     #subprocess.call(['tmux', 'split-window', "'"+log_view_command+"'"])
 
