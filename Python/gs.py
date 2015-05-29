@@ -44,7 +44,7 @@ GS_BIN_PATH = "/usr/bin/"
 GS_PATH = {
     "LOG"               : "/home/logs/gs.log",
     "INPUT_PIPE"        : "/home/pipes/gnd-input",
-    "NETMAN"            : GS_BIN_PATH+"gnd",
+    "GROUND_NETMAN"     : GS_BIN_PATH+"gnd",
     "GROUND_COMMANDER"  : GS_BIN_PATH+"ground-commander",
     "MOCK_SAT_NM"       : GS_BIN_PATH+"mock_sat",
     "MOCK_SAT_CMDR"     : GS_BIN_PATH+"space-commander",
@@ -59,12 +59,12 @@ GS_PATH = {
 GS_LOG_PATH = "/home/logs/"
 GS_LOG_EXT = ".log"
 LOG_FILES = {
-    "NETMAN"            : GS_LOG_PATH+"GROUND_NETMAN"+iso_today+GS_LOG_EXT,
-    "GROUND_COMMANDER"  : GS_LOG_PATH+"GROUND_COMMANDER"+iso_today+GS_LOG_EXT,
-    "GROUND_RADIO"      : GS_LOG_PATH+"GROUND_RADIO"+iso_today+GS_LOG_EXT,
     "MOCK_SAT_NM"       : GS_LOG_PATH+"NETMAN"+iso_today+GS_LOG_EXT,
     "MOCK_SAT_CMDR"     : GS_LOG_PATH+"COMMANDER"+iso_today+GS_LOG_EXT,
-    "MOCK_SAT_RADIO"    : GS_LOG_PATH+"HE100"+iso_today+GS_LOG_EXT
+    "MOCK_SAT_RADIO"    : GS_LOG_PATH+"HE100"+iso_today+GS_LOG_EXT,
+    "GROUND_NETMAN"     : GS_LOG_PATH+"GROUND_NETMAN"+iso_today+GS_LOG_EXT,
+    "GROUND_COMMANDER"  : GS_LOG_PATH+"GROUND_COMMANDER"+iso_today+GS_LOG_EXT,
+    "GROUND_RADIO"      : GS_LOG_PATH+"GROUND_RADIO"+iso_today+GS_LOG_EXT,
 }
 
 KW_GETTIME  = "010001313337"    #0x01 0x00 0x01 0x31 0x33 0x37
@@ -192,7 +192,7 @@ def start_process(process_name):
     print "[ERROR] "+process_name+" HAS STOPPED"
 
 def start_ground_netman():
-  return start_process("NETMAN")
+  return start_process("GROUND_NETMAN")
 
 def start_mock_satellite_netman() :
   return start_process("MOCK_SAT_NM")
@@ -234,20 +234,25 @@ def tear_down() :
     global mock_satellite_commander
     global log_window
     if ( ground_netman is not None ) and ( is_subprocess_running(ground_netman) ) :
-        ground_netman.terminate()
+        #ground_netman.terminate()
+        subprocess.call([ 'kill', '-9', str(ground_netman.pid) ]) # TODO BAD, not OS independent
         print "[NOTICE] Ground Netman was terminated"
     if ( ground_commander is not None ) and ( is_subprocess_running(ground_commander) ) :
-        ground_commander.terminate()
+        #ground_commander.terminate()
+        subprocess.call([ 'killall', '-9', str(ground_commander.pid) ])
         print "[NOTICE] Ground Commander was terminated"
     if ( mock_satellite_netman is not None ) and ( is_subprocess_running(mock_satellite_netman ) ) :
-        mock_satellite_netman.terminate()
+        #mock_satellite_netman.terminate()
+        subprocess.call([ 'kill', '-9', str(mock_satellite_netman.pid) ])
         print "[NOTICE] Mock Satellite Netman was terminated"
     if ( mock_satellite_commander is not None ) and ( is_subprocess_running(mock_satellite_commander) ) :
-        mock_satellite_commander.terminate()
+        #mock_satellite_commander.terminate()
+        subprocess.call([ 'killall', '-9', str(mock_satellite_commander.pid) ])
         print "[NOTICE] Mock Satellite Commander was terminated"
     if ( log_window is not None ) and ( is_subprocess_running(log_window) ) :
         log_window.terminate()
-        print "[NOTICE] Mock Satellite Commander was terminated"
+        print "[NOTICE] Log Window was terminated"
+
 
 def start_ground_station():
   # test local radio
