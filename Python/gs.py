@@ -290,7 +290,7 @@ def command_line_interface():
       tear_down()
     # TODO THIS IS BROKEN FOR SOME REASON
     #if ( is_subprocess_running(ground_control) ):
-    print("This is a prototype of the ground station commander in Python to simulate certain commands\n gt - gettime    get the satellite time\n cf - confirm    prompt the satellite to go ahead with the previous command\n q  - exit       and close all other ground station applications");
+        print("This is a prototype of the ground station commander in Python to simulate certain commands\n gt - gettime    get the satellite time\n cf - confirm    prompt the satellite to go ahead with the previous command\n td - teardown    terminate all running ground station or mock satellite processes\n q  - exit       and close all other ground station applications");
     if (( input == "gt" ) | (input == "gettime")):
         send_command(gettime)
     if (( input == "st" ) | (input == "settime")):
