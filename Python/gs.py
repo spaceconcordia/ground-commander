@@ -34,10 +34,7 @@ except NameError:
 # GLOBALS 
 #-------------------------------------------------------------
 iso_today = datetime.datetime.now().strftime("%Y%m%d")
-ground_netman = None
-ground_commander = None
-mock_satellite_netman = None
-mock_satellite_commander = None
+ground_control = None
 log_window = None
 
 GS_BIN_PATH = "/usr/bin/"
@@ -53,7 +50,16 @@ GS_PATH = {
     "GETTIME_RB"        : GS_BIN_PATH+"gettime-command.rb",
     "REBOOT_RB"         : GS_BIN_PATH+"reboot-command.rb",
     "UPDATE_RB"         : GS_BIN_PATH+"update-command.rb",
-    "STEP2_RB"          : GS_BIN_PATH+"step2.rb"
+    "STEP2_RB"          : GS_BIN_PATH+"step2.rb",
+    "PCD"               : "/usr/sbin/pcd"
+}
+
+PCD_RULESET_PATH = "/home/vagrant/CONSAT1/space-pcd/pcd-1.1.6/rules/"
+PCD_RULESET_EXT = ".pcd"
+PCD_RULESET_LIST = {
+    "GROUND_STATION"        : PCD_RULESET_PATH+"ground-station"+PCD_RULESET_EXT,
+    "MOCK_SAT_INTERACTION"  : PCD_RULESET_PATH+"mock-satellite-interaction"+PCD_RULESET_EXT,
+    "SATELLITE"             : PCD_RULESET_PATH+"satellite"+PCD_RULESET_EXT
 }
 
 GS_LOG_PATH = "/home/logs/"
@@ -184,6 +190,8 @@ def check_requirements():
             continue
         else : fail(key+" ("+requirement+") is not present! Try running 'MANAGE_CS1.sh -d'")
 
+# TODO add args
+# process = subP([GS_PATH[process_name], args])
 def start_process(process_name):
   print "[NOTICE] "+process_name+" STARTING"
   process = subP(GS_PATH[process_name])
@@ -193,32 +201,14 @@ def start_process(process_name):
   else:
     print "[ERROR] "+process_name+" HAS STOPPED"
 
-def start_ground_netman():
-  return start_process("GROUND_NETMAN")
-
-def start_mock_satellite_netman() :
-  return start_process("MOCK_SAT_NM")
-
-def start_mock_satellite_commander() :
-  return start_process("MOCK_SAT_CMDR")
-
-def start_ground_commander(): 
-  #print "[NOTICE] GROUND COMMANDER STARTING..."
-  #global ground_commander
-  return start_process("GROUND_COMMANDER")
-
-  #ground_commander = subP(['python', GS_PATH["GROUND_COMMANDER"]])
-  #stdout, stderr = ground_commander.communicate()
-  #print stdout
-  #print stderr
-  #return ground_commander
-
-  # TODO when real ground-commander exists
-  #if is_subprocess_running(ground_commander):
-  #    print "[NOTICE] GROUND COMMANDER IS RUNNING"
-  #    return ground_commander
-  #else:
-  #    print "[ERROR] GROUND COMMANDER HAS STOPPED"
+def start_pcd(pcd_ruleset):
+  print "[NOTICE] "+pcd_ruleset+" STARTING"
+  process = subP([GS_PATH['PCD'], '-vf', pcd_ruleset])
+  if is_subprocess_running(process):
+    print "[NOTICE] Ruleset: "+pcd_ruleset+" IS RUNNING"
+    return process
+  else:
+    print "[ERROR] Ruleset:"+pcd_ruleset+" HAS STOPPED"
 
 def is_subprocess_running(subprocess):
     if subprocess is None:
@@ -230,56 +220,30 @@ def is_subprocess_running(subprocess):
 
 def tear_down() :
     print "[NOTICE] Tearing down all running processes"
-    global ground_netman
-    global ground_commander
-    global mock_satellite_netman
-    global mock_satellite_commander
+    global ground_control
     global log_window
-    if ( ground_netman is not None ) and ( is_subprocess_running(ground_netman) ) :
-        #ground_netman.terminate()
-        subprocess.call([ 'kill', '-9', str(ground_netman.pid) ]) # TODO BAD, not OS independent
-        print "[NOTICE] Ground Netman was terminated"
-    if ( ground_commander is not None ) and ( is_subprocess_running(ground_commander) ) :
-        #ground_commander.terminate()
-        subprocess.call([ 'killall', '-9', str(ground_commander.pid) ])
-        print "[NOTICE] Ground Commander was terminated"
-    if ( mock_satellite_netman is not None ) and ( is_subprocess_running(mock_satellite_netman ) ) :
-        #mock_satellite_netman.terminate()
-        subprocess.call([ 'kill', '-9', str(mock_satellite_netman.pid) ])
-        print "[NOTICE] Mock Satellite Netman was terminated"
-    if ( mock_satellite_commander is not None ) and ( is_subprocess_running(mock_satellite_commander) ) :
-        #mock_satellite_commander.terminate()
-        subprocess.call([ 'killall', '-9', str(mock_satellite_commander.pid) ])
-        print "[NOTICE] Mock Satellite Commander was terminated"
+    if ( ground_control is not None ) and ( is_subprocess_running(ground_control) ) :
+        subprocess.call([ 'kill', '-9', str(ground_control.pid) ]) # TODO BAD, not OS independent
+        print "[NOTICE] Ground Control was terminated"
     if ( log_window is not None ) and ( is_subprocess_running(log_window) ) :
         log_window.terminate()
         print "[NOTICE] Log Window was terminated"
-    subprocess.call([ 'killall', '-9', 'space-commander', 'ground-commander', 'mock_sat','gnd']) # TODO BAD, not OS independent
-
+    subprocess.call([ 'killall', '-9','space-commander', 'ground-commander', 'mock_sat','gnd','pcd']) # TODO BAD, not OS independent
 
 def start_ground_station():
   # test local radio
 
-  global ground_netman
-  ground_netman = start_ground_netman()
+  global ground_control
+  ground_control = start_pcd( PCD_RULESET_LIST["GROUND_STATION"] )
 
   # ping satellite
 
-  # start ground-commmander and drop to shell
-  global ground_commander
-  ground_commander = start_ground_commander()
-
 #end def
 
+
 def start_mock_interaction():
-
-  global mock_satellite_commander
-  mock_satellite_commander = start_mock_satellite_commander()
-
-  global mock_satellite_netman
-  mock_satellite_netman = start_mock_satellite_netman()
-
-  start_ground_station()
+  global ground_control
+  ground_control = start_pcd( PCD_RULESET_LIST["MOCK_SAT_INTERACTION"] )
 
   global log_window
   log_window = open_log_window()
@@ -302,8 +266,8 @@ def open_log_window():
     #subprocess.call(['tmux', 'split-window', "'"+log_view_command+"'"])
 
 def go_no_go():
-  global ground_netman
-  return "GO" if is_subprocess_running(ground_netman) is True else "NOGO"
+  global ground_control
+  return "GO" if is_subprocess_running(ground_control) is True else "NOGO"
 
 def prompt():
     return go_no_go() + " >> " + time.strftime("%H:%M:%S") + " >> "
@@ -324,19 +288,20 @@ def command_line_interface():
       start_mock_interaction()
     if ((input == "teardown") | (input == "td") | (input == "t")):
       tear_down()
-    if ( is_subprocess_running(mock_satellite_commander) ):
-        print("This is a prototype of the ground station commander in Python to simulate certain commands\n gt - gettime    get the satellite time\n cf - confirm    prompt the satellite to go ahead with the previous command\n q  - exit       and close all other ground station applications");
-        if (( input == "gt" ) | (input == "gettime")):
-            send_command(gettime)
-        if (( input == "st" ) | (input == "settime")):
-            settime_command_buffer = return_settime_command_buffer() 
-            send_command(settime_command_buffer)
-        if (( input == "gl" ) | (input == "getlog")):
-            input=raw_input("Please enter the")
-            #isotoday
-            send_command(gettime)
-        if (( input == "cf" ) | (input == "confirm")):
-            send_command(confirm)
+    # TODO THIS IS BROKEN FOR SOME REASON
+    #if ( is_subprocess_running(ground_control) ):
+    print("This is a prototype of the ground station commander in Python to simulate certain commands\n gt - gettime    get the satellite time\n cf - confirm    prompt the satellite to go ahead with the previous command\n q  - exit       and close all other ground station applications");
+    if (( input == "gt" ) | (input == "gettime")):
+        send_command(gettime)
+    if (( input == "st" ) | (input == "settime")):
+        settime_command_buffer = return_settime_command_buffer() 
+        send_command(settime_command_buffer)
+    if (( input == "gl" ) | (input == "getlog")):
+        input=raw_input("Please enter the")
+        #isotoday
+        send_command(gettime)
+    if (( input == "cf" ) | (input == "confirm")):
+        send_command(confirm)
 
 #-------------------------------------------------------------
 # GROUND STATION FUNCTIONS 
