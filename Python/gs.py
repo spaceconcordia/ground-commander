@@ -39,7 +39,6 @@ log_window = None
 
 GS_BIN_PATH = "/usr/bin/"
 GS_PATH = {
-    "LOG"               : "/home/logs/gs.log",
     "INPUT_PIPE"        : "/home/pipes/gnd-input",
     "GROUND_NETMAN"     : GS_BIN_PATH+"gnd",
     "GROUND_COMMANDER"  : GS_BIN_PATH+"ground-commander",
@@ -82,7 +81,8 @@ KW_ACK      = "31210052d5"      #0x31 0x21 0x00 0x52 0xd5
 settime   = bytearray.fromhex('30 64 00 00 00 00');
 gettime   = bytearray.fromhex('31');
 update    = bytearray.fromhex('32');
-getlog    = bytearray.fromhex('33');
+getlog    = bytearray.fromhex('33 00 00 FF'); # GETLOG_CMD OPT_NOOPT SUBSYSTEM_ID 255_bytes
+# https://sites.google.com/a/spaceconcordia.ca/documentation/home/software/projects/commander/commands
 reboot    = bytearray.fromhex('34');
 decode    = bytearray.fromhex('35');
 deletelog = bytearray.fromhex('36');
@@ -263,7 +263,8 @@ def open_log_window():
     print sat_log_view_command
     print gnd_log_view_command
     #return subP(['xterm', '-e', log_view_command])
-    #subprocess.call(['tmux', 'split-window', "'"+log_view_command+"'"])
+    subprocess.call(['tmux', 'split-window', "'"+sat_log_view_command+"'"])
+    subprocess.call(['tmux', 'split-window', "'"+gnd_log_view_command+"'"])
 
 def go_no_go():
   global ground_control
@@ -290,16 +291,16 @@ def command_line_interface():
       tear_down()
     # TODO THIS IS BROKEN FOR SOME REASON
     #if ( is_subprocess_running(ground_control) ):
-        print("This is a prototype of the ground station commander in Python to simulate certain commands\n gt - gettime    get the satellite time\n cf - confirm    prompt the satellite to go ahead with the previous command\n td - teardown    terminate all running ground station or mock satellite processes\n q  - exit       and close all other ground station applications");
+    print("This is a prototype of the ground station commander in Python to simulate certain commands\n gt - gettime    get the satellite time\n cf - confirm    prompt the satellite to go ahead with the previous command\n td - teardown    terminate all running ground station or mock satellite processes\n q  - exit       and close all other ground station applications");
     if (( input == "gt" ) | (input == "gettime")):
         send_command(gettime)
     if (( input == "st" ) | (input == "settime")):
         settime_command_buffer = return_settime_command_buffer() 
         send_command(settime_command_buffer)
     if (( input == "gl" ) | (input == "getlog")):
-        input=raw_input("Please enter the")
-        #isotoday
-        send_command(gettime)
+        input=raw_input("Please enter the log system id you want to grab \n3-Commander \n8-netman")
+        getlog[2] = int(input)
+        send_command(getlog)
     if (( input == "cf" ) | (input == "confirm")):
         send_command(confirm)
 
