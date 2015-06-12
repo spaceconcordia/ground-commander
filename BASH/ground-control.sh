@@ -19,7 +19,9 @@ sat_logs="/home/logs/GROUND_COMMANDER$date /home/logs/GROUND_NETMAN$date"
 touch $ground_logs
 touch $sat_logs
 
+follow_files_command="tail --retry --follow=name "
+
 tmux neww -n GND 'ground-control.py'
-tmux split-window -v -p 50 "tail -f $ground_logs"
-tmux split-window -h -p 50 "tail -f $sat_logs"
+tmux split-window -v -p 50 " $follow_files_command $ground_logs"
+tmux split-window -h -p 50 " $follow_files_command $sat_logs"
 

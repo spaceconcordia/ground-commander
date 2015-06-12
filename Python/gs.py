@@ -228,7 +228,7 @@ def tear_down() :
     if ( log_window is not None ) and ( is_subprocess_running(log_window) ) :
         log_window.terminate()
         print "[NOTICE] Log Window was terminated"
-    subprocess.call([ 'killall', '-9','space-commander', 'ground-commander', 'mock_sat','gnd','pcd']) # TODO BAD, not OS independent
+    subprocess.call([ 'killall', '-9','space-commander', 'ground-commander', 'mock_sat','gnd','pcd','cs1_log_rotation.sh']) # TODO BAD, not OS independent
 
 def start_ground_station():
   # test local radio
