@@ -53,7 +53,10 @@ GS_PATH = {
     "PCD"               : "/usr/sbin/pcd"
 }
 
-PCD_RULESET_PATH = "/home/vagrant/CONSAT1/space-pcd/pcd-1.1.6/rules/"
+HOME_FOLDER_PATH = os.getenv('HOME')+"/"
+CS1_PATH = HOME_FOLDER_PATH+"CONSAT1"+"/"
+
+PCD_RULESET_PATH = CS1_PATH+"/space-pcd/pcd-1.1.6/rules/"
 PCD_RULESET_EXT = ".pcd"
 PCD_RULESET_LIST = {
     "GROUND_STATION"        : PCD_RULESET_PATH+"ground-station"+PCD_RULESET_EXT,
